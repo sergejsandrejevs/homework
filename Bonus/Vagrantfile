@@ -1,0 +1,16 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  
+  config.vm.define "worker2" do |worker2_config|
+    worker2_config.vm.hostname = "worker2"
+    worker2_config.vm.box = "centos6"
+    worker2_config.vm.box_url = "https://atlas.hashicorp.com/vdribadan/boxes/centos6/versions/1.0/providers/virtualbox.box"
+    worker2_config.vm.network "private_network", type: "dhcp"
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook = "playbook_worker.yml"
+    ansible.verbose = true
+  end
+  end 
+end
