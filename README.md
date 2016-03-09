@@ -39,6 +39,11 @@ IMPORTANT NOTE!!!!!!
         Bonus task: 
                     You can now cd to Homework/Bonus and run ./worker.sh worker#(any number eg. ./worker.sh worker5).
                     New host will be added and registered in zabbix monitoring system, so one can run python /vagrant/consumer.py on this host and start receiving messages
+		    Use rswrkssh.sh (Example usage: ./rswrkssh.sh worker3) to ssh to vagrant machine "lost" due to Vagrantfile change.
+
+
+        Known issues:
+	             Zabbix monitoring may not fetch all itmes from machines, created by worker.sh script since they are located in different subnet. Probably due to my home router problems.
 		
 		
 		
