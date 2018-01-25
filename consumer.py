@@ -18,12 +18,18 @@ channel.queue_bind(queue="hello-queue",
                    routing_key="hola")
 def msg_consumer(channel, method, header, body):
   channel.basic_ack(delivery_tag=method.delivery_tag)
-  if body == "quit":
-    channel.basic_cancel(consumer_tag="hello-consumer")
-    channel.stop_consuming()
-  else:
-    print body
-    time.sleep(len(body))
+  #if body == "quit":
+  #  channel.basic_cancel(consumer_tag="hello-consumer")
+  #  channel.stop_consuming()
+  #else:
+  #  print body
+  #  time.sleep(len(body))
+  try:
+    print "Received: " + body
+    time.sleep(int(body))
+    print "woke up"
+  except TypeError:
+    print "ERROR: cannot convert message to int"
   return
 channel.basic_consume( msg_consumer,
                        queue="hello-queue",

@@ -142,3 +142,11 @@
             ip: 10.10.10.3
             dns: "central"
             port: 10050
+
+#- hosts: central
+#  become: true
+#  remote_user: vagrant
+#  roles:
+#    - sardpost.java8
+#- name: Build producer app
+#  

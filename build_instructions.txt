@@ -1,0 +1,17 @@
+   55  cd /opt/
+   56  wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u161-b12/2f38c3b165be4555a1fa6e98c45e0808/jdk-8u161-linux-x64.tar.gz"
+   57  tar xzf jdk-8u161-linux-x64.tar.gz
+   58  cd /opt/jdk1.8.0_161/
+   59  alternatives --install /usr/bin/java java /opt/jdk1.8.0_161/bin/java 2
+   60  alternatives --config java
+   61  java -version
+   62  cd /vagrant/
+   65  export JAVA_HOME=/opt/jdk1.8.0_161
+   66  export JRE_HOME=/opt/jdk1.8.0_161/jre
+   67  export PATH=$PATH:/opt/jdk1.8.0_161/bin:/opt/jdk1.8.0_161/jre/bin
+   68  wget http://central.maven.org/maven2/com/rabbitmq/amqp-client/4.0.2/amqp-client-4.0.2.jar
+   69  #wget http://central.maven.org/maven2/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar
+   70  #wget http://central.maven.org/maven2/org/slf4j/slf4j-simple/1.7.22/slf4j-simple-1.7.22.jar
+   72  export CP=.:amqp-client-4.0.2.jar:slf4j-api-1.7.21.jar:slf4j-simple-1.7.22.jar
+  108  javac -cp $CP Producer.java
+  109  java -cp $CP Producer 2
