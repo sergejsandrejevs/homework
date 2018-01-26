@@ -12,13 +12,12 @@ Goals summary:
 7. yes
 8. yes
 
-
-	Centos6.box is a Centos6.7 basic installation with Ansible 2.0.1.0 preinstalled.
-	Because of the bug in Vagrant 1.8.1 (promised to be fixed in 1.8.2) when using ansible 2.0. as ansible_local provisioner you need to make changes in Vagrant configuration on your host machine as follows:
-		Windows machine:
-			Modify C:\HashiCorp\Vagrant\embedded\gems\gems\vagrant-1.8.1\plugins\provisioners\ansible\provisioner\guest.rb file as described in here: https://github.com/mitchellh/vagrant/commit/9dbdb9397a92d4fc489e9afcb022621df7f60d11
-			As an option you can just replace guest.rb on your machine with file provided in archive.
-			That's it - you can now cd to Homework dir and run vagrant up.
+Centos6.box is a Centos6.7 basic installation with Ansible 2.0.1.0 preinstalled.
+Because of the bug in Vagrant 1.8.1 (promised to be fixed in 1.8.2) when using ansible 2.0. as ansible_local provisioner you need to make changes in Vagrant configuration on your host machine as follows:
+Windows machine:
+Modify C:\HashiCorp\Vagrant\embedded\gems\gems\vagrant-1.8.1\plugins\provisioners\ansible\provisioner\guest.rb file as described in here: https://github.com/mitchellh/vagrant/commit/9dbdb9397a92d4fc489e9afcb022621df7f60d11
+As an option you can just replace guest.rb on your machine with file provided in archive.
+That's it - you can now cd to Homework dir and run vagrant up.
 
 			
     Archive Contents:
@@ -39,7 +38,11 @@ Goals summary:
 		
 	Tests:	
 		Run python /vagrant/consumer.py on worker machine to start receiving messages. Consumer accepts messages  and sleeps for received amount of seconds.
-		Java installation and producer.java built wasn't automated yet, but the bash steps can be found at build_instructions.txt file. An example shows how to send a message to sleep for 2s seconds.		
+		Java installation and producer.java built wasn't automated yet, but the bash steps can be found at build_instructions.txt file. An example shows how to send a message to sleep for 2s seconds:
+			cd /vagrant/
+			export CP=.:amqp-client-4.0.2.jar:slf4j-api-1.7.21.jar:slf4j-simple-1.7.22.jar
+			javac -cp $CP Producer.java
+			java -cp $CP Producer 2
 		Run /vagrant/turtle.sh to produce queue of unacknowledged messages.
 			
 			
