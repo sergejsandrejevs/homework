@@ -1,6 +1,17 @@
-Welcome to my Vagrant Homework project!
+As base for majority goals there was reused existing solution (see forked)
 
-IMPORTANT NOTE!!!!!!
+Goals summary:
+1. yes (vagrant 1.8 was used)
+2. yes
+3. yes (classpath and libs still to be downloaded manually yet)
+4. yes
+5. CPU - yes
+   RAM - yes
+   HDD - no
+6. yes (wasn't checked)
+7. yes
+8. yes
+
 
 	Centos6.box is a Centos6.7 basic installation with Ansible 2.0.1.0 preinstalled.
 	Because of the bug in Vagrant 1.8.1 (promised to be fixed in 1.8.2) when using ansible 2.0. as ansible_local provisioner you need to make changes in Vagrant configuration on your host machine as follows:
@@ -27,8 +38,8 @@ IMPORTANT NOTE!!!!!!
 		
 		
 	Tests:	
-		Run python /vagrant/consumer.py on worker machine to start receiving messages. Consumer accepts messages  and sleeps for (Message character count). It also quits upon receiving 'quit' message.
-		Run python /vagrant/producer.py on central machine in order to start publishing messages.
+		Run python /vagrant/consumer.py on worker machine to start receiving messages. Consumer accepts messages  and sleeps for received amount of seconds.
+		Java installation and producer.java built wasn't automated yet, but the bash steps can be found at build_instructions.txt file. An example shows how to send a message to sleep for 2s seconds.		
 		Run /vagrant/turtle.sh to produce queue of unacknowledged messages.
 			
 			
