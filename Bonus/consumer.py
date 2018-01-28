@@ -3,7 +3,7 @@
 import pika
 import time
 credentials = pika.PlainCredentials("guest", "guest")
-conn_params = pika.ConnectionParameters("10.10.10.3",
+conn_params = pika.ConnectionParameters("10.10.0.2",
                           credentials = credentials)
 conn_broker = pika.BlockingConnection(conn_params)
 channel = conn_broker.channel()

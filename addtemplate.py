@@ -6,7 +6,7 @@ import sys
 
 xmldir = "/vagrant/"
 xmlfile = xmldir + sys.argv[1]
-zapi = zabbix_api.ZabbixAPI(server='https://10.10.10.3/zabbix', path="", log_level=1)
+zapi = zabbix_api.ZabbixAPI(server='https://10.10.0.2/zabbix', path="", log_level=1)
 zapi.login('admin','zabbix')
 f = open(xmlfile)
 source = f.read()

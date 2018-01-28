@@ -1,12 +1,13 @@
 ---
 
-- hosts: central
+- hosts: all
   become: true
   remote_user: vagrant
   vars:
     zabbix_server_mysql_version: "2.4.8"
   tasks:
-    - hostname: name=central
+    - hostname: 
+        name: "{{ dns_name }}"
 
     - service: name=iptables enabled=no
     - service: name=iptables state=stopped
@@ -124,10 +125,10 @@
     - name: Add Host To zabbix Server
       local_action:
         module: zabbix_host
-        server_url: http://10.10.10.3/zabbix
+        server_url: "http://{{ ip_address }}/zabbix"
         login_user: admin
         login_password: zabbix
-        host_name: central
+        host_name: "{{ dns_name }}"
         host_groups:
           - Linux Servers
         link_templates:
@@ -139,8 +140,8 @@
           - type: 1
             main: 1
             useip: 1
-            ip: 10.10.10.3
-            dns: "central"
+            ip: "{{ ip_address }}"
+            dns: "{{ dns_name }}"
             port: 10050
 
 #- hosts: central

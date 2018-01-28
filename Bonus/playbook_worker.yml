@@ -25,10 +25,10 @@
     - service: name=zabbix-agent enabled=yes
 
     - name: Configure zabbix-agent1
-      command: sed -i 's/Server=127.0.0.1/Server=10.10.10.3/g' /etc/zabbix/zabbix_agentd.conf
+      command: sed -i 's/Server=127.0.0.1/Server=10.10.0.2/g' /etc/zabbix/zabbix_agentd.conf
 
     - name: Configure zabbix-agent2
-      command: sed -i 's/ServerActive=127.0.0.1/ServerActive=10.10.10.3/g' /etc/zabbix/zabbix_agentd.conf
+      command: sed -i 's/ServerActive=127.0.0.1/ServerActive=10.10.0.2/g' /etc/zabbix/zabbix_agentd.conf
 
     - name: Configure zabbix-agent3
       command: sed -i 's/Hostname=Zabbix\ server/Hostname=worker2/g' /etc/zabbix/zabbix_agentd.conf
@@ -53,7 +53,7 @@
     - name: Add Host To zabbix Server
       local_action:
         module: zabbix_host
-        server_url: http://10.10.10.3/zabbix
+        server_url: http://10.10.0.2/zabbix
         login_user: admin
         login_password: zabbix
         host_name: worker2
