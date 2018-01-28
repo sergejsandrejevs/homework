@@ -1,0 +1,4 @@
+producer_app_dependencies:
+  - { artifact_name: "amqp-client-4.0.2.jar", download_link: "http://central.maven.org/maven2/com/rabbitmq/amqp-client/4.0.2/amqp-client-4.0.2.jar" }
+  - { artifact_name: "slf4j-api-1.7.21.jar", download_link: "http://central.maven.org/maven2/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar" }
+  - { artifact_name: "slf4j-simple-1.7.22.jar", download_link: "http://central.maven.org/maven2/org/slf4j/slf4j-simple/1.7.22/slf4j-simple-1.7.22.jar" }

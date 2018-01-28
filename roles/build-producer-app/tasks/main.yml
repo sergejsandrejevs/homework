@@ -1,0 +1,45 @@
+- name: create temp path
+  file:
+    path: "{{ build_path }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+
+- name: copy java class
+  copy:
+    src: "{{ item }}"
+    dest: "{{ build_path }}"
+    owner: vagrant
+    group: vagrant
+  with_items:
+    - Producer.java
+    - manifest.txt
+
+- name: download apps
+  get_url:
+    url: "{{ item.download_link }}"
+    dest: "{{ build_path }}{{ item.artifact_name }}"
+    owner: vagrant
+    group: vagrant
+  with_items: "{{ producer_app_dependencies }}"
+
+- name: gather classpaths
+  set_fact:
+    producer_classpath: ".:{{ producer_app_dependencies | map(attribute='artifact_name') | join(':') }}"
+
+- name: build Producer app
+  command: "javac -cp {{ producer_classpath }} Producer.java"
+  args:
+    chdir: "{{ build_path }}"
+
+- name: ensure destination path exists
+  file:
+    path: "{{ dest_path }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+
+- name: create Producer jar
+  command: "jar cvfm {{ dest_path }}Producer.jar manifest.txt {{ producer_app_dependencies | map(attribute='artifact_name') | join(' ') }} Producer.class"
+  args:
+    chdir: "{{ build_path }}"
