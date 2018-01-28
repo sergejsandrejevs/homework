@@ -2,7 +2,7 @@
 
 #This is a rabbitmq overload script
 
-for run in {1..20}
+for i in {1..1000}
 do
-  python /vagrant/producer.py 'Move on, you damned turtle!'
+  python /vagrant/producer.py '1';
 done
