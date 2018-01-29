@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-WORKERS = 0
+WORKERS = 1
 ANSIBLE_GROUPS = {
   "centrals" => ["central"],
   "workers" => ["worker[1:#{WORKERS}]"]

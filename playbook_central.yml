@@ -1,148 +1,174 @@
 ---
 
-# - hosts: all
-#   become: true
-#   remote_user: vagrant
-#   vars:
-#     zabbix_server_mysql_version: "2.4.8"
-#   tasks:
-#     - hostname: 
-#         name: "{{ dns_name }}"
+- hosts: all
+  become: true
+  remote_user: vagrant
+  vars:
+    zabbix_server_mysql_version: "2.4.8"
+  tasks:
+    - hostname: 
+        name: "{{ dns_name }}"
 
-#     - service: name=iptables enabled=no
-#     - service: name=iptables state=stopped
+    # - service: name=iptables enabled=no
+    # - service: name=iptables state=stopped
 
-#     - name: Add Zabbix repository
-#       yum: name=http://repo.zabbix.com/zabbix/2.4/rhel/6/x86_64/zabbix-release-2.4-1.el6.noarch.rpm state=present
+    - name: Add Zabbix repository
+      yum: name=http://repo.zabbix.com/zabbix/2.4/rhel/7/x86_64/zabbix-release-2.4-1.el7.noarch.rpm state=present
 
-#     - name: Install Zabbix-Server
-#       yum: 
-#         name: "zabbix-server-mysql-{{ zabbix_server_mysql_version }}"
-#         state: present
+    - name: Install Zabbix-Server
+      yum: 
+        name: "zabbix-server-mysql-{{ zabbix_server_mysql_version }}"
+        state: present
 
-#     - name: Install Zabbix-Web-Mysql
-#       yum: 
-#         name: "zabbix-web-mysql-{{ zabbix_server_mysql_version }}"
-#         state: present
+    - name: Install Zabbix-Web-Mysql
+      yum: 
+        name: "zabbix-web-mysql-{{ zabbix_server_mysql_version }}"
+        state: present
 
-#     - name: Install the Python MySQL module
-#       yum: name=MySQL-python
+    - name: Install the Python MySQL module
+      yum: name=MySQL-python
 
-#     - name: Install Mysql Server
-#       yum: name=mysql-server state=present
+    - name: Get Mysql Server RPM
+      yum: 
+        name: https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+        state: present
 
-#     - service: name=mysqld state=started
-#     - service: name=mysqld enabled=yes
+    - name: Install Mysql Server
+      yum: 
+        name: mysql-server
+        state: present
 
-#     - name: Create zabbix database 
-#       mysql_db: name=zabbix state=present collation=utf8_general_ci
-#       register: mysql_db
+    - service: name=mysqld state=started
+    - service: name=mysqld enabled=yes
 
-#     - mysql_user: name=zabbix password=zabbix priv=*.*:ALL state=present
+    - name: get password lane
+      command: "grep 'A temporary password is generated for' /var/log/mysqld.log"
+      register: mysql_password_lane
+      
+    - name: get password
+      set_fact:
+        mysql_password: "{{ mysql_password_lane.stdout.split(':') | last }}"
 
-#     - name: Import schema sql
-#       mysql_db: "state=import name=zabbix target=/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_mysql_version }}/create/schema.sql"
-#       when: mysql_db.changed
+    - name: setup mysql password
+      blockinfile:
+        path: /etc/my.cnf
+        block: |
+          [client]
+          user=root
+          password={{ mysql_password }}
 
-#     - name: Import images sql
-#       mysql_db: "state=import name=zabbix target=/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_mysql_version }}/create/images.sql"
-#       when: mysql_db.changed
+    - name: temporary fix - trim space after password=
+      command: "sed -i s/password=\ */password=/g /etc/my.cnf"
 
-#     - name: Import data sql
-#       mysql_db: "state=import name=zabbix target=/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_mysql_version }}/create/data.sql"
-#       when: mysql_db.changed
+    - name: Create zabbix database 
+      mysql_db: name=zabbix state=present collation=utf8_general_ci
+      register: mysql_db
 
-#     - name: Change time zone
-#       command: sed -i 's/# php_value date.timezone Europe\/Riga/php_value date.timezone Europe\/Kiev/g' /etc/httpd/conf.d/zabbix.conf
+    - mysql_user: name=zabbix password=zabbix priv=*.*:ALL state=present
 
-#     - name: Change Zabbix Server conf
-#       command: sed -i 's/# DBHost=localhost/DBHost=localhost/g' /etc/zabbix/zabbix_server.conf
+    - name: Import schema sql
+      mysql_db: "state=import name=zabbix target=/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_mysql_version }}/create/schema.sql"
+      when: mysql_db.changed
 
-#     - name: Change Zabbix Server conf 2
-#       command: sed -i 's/# DBPassword=/DBPassword=zabbix/g' /etc/zabbix/zabbix_server.conf 
+    - name: Import images sql
+      mysql_db: "state=import name=zabbix target=/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_mysql_version }}/create/images.sql"
+      when: mysql_db.changed
 
-#     - name: Install SNMPD
-#       yum: name=net-snmp-utils state=present
-#       yum: name=net-snmp state=present
+    - name: Import data sql
+      mysql_db: "state=import name=zabbix target=/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_mysql_version }}/create/data.sql"
+      when: mysql_db.changed
 
-#     - service: name=snmpd state=restarted
-#     - service: name=snmpd enabled=yes
+    - name: Change time zone
+      command: sed -i 's/# php_value date.timezone Europe\/Riga/php_value date.timezone Europe\/Kiev/g' /etc/httpd/conf.d/zabbix.conf
 
-#     - name: Install Apache HTTP
-#       yum: name=httpd state=latest
-#       yum: name=mod_ssl state=latest
+    - name: Change Zabbix Server conf
+      command: sed -i 's/# DBHost=localhost/DBHost=localhost/g' /etc/zabbix/zabbix_server.conf
 
-#     - name: Configure Zabbix frontend
-#       template: src=/vagrant/zabbix.conf.php.j2 dest=/etc/zabbix/web/zabbix.conf.php owner=apache group=apache
+    - name: Change Zabbix Server conf 2
+      command: sed -i 's/# DBPassword=/DBPassword=zabbix/g' /etc/zabbix/zabbix_server.conf 
 
-#     - name: Install Zabbix API
-#       pip: name=zabbix-api state=present
+    - name: Install SNMPD
+      yum: name=net-snmp-utils state=present
+      yum: name=net-snmp state=present
 
-#     - service: name=httpd state=restarted
+    - service: name=snmpd state=restarted
+    - service: name=snmpd enabled=yes
 
-#     - service: name=httpd enabled=yes
+    - name: Install Apache HTTP
+      yum: name=httpd state=latest
+      yum: name=mod_ssl state=latest
 
-#     - service: name=zabbix-server enabled=yes
+    - name: Configure Zabbix frontend
+      template: src=/vagrant/zabbix.conf.php.j2 dest=/etc/zabbix/web/zabbix.conf.php owner=apache group=apache
 
-#     - service: name=zabbix-server state=restarted
+    - name: Install Zabbix API
+      pip: name=zabbix-api state=present
 
-#     - name: Import Rabbitmq Template
-#       command: python /vagrant/addtemplate.py rabbit.xml
+    - service: name=httpd state=restarted
 
-#     - name: Install Zabbix-Client
-#       yum: name=zabbix-agent state=present
+    - service: name=httpd enabled=yes
 
-#     - service: name=zabbix-agent state=started
+    - service: name=zabbix-server enabled=yes
 
-#     - service: name=zabbix-agent enabled=yes
+    - service: name=zabbix-server state=restarted
 
-#     - name: Install Zabbix Sender
-#       yum: name=zabbix-sender state=present
+    - name: Import Rabbitmq Template
+      command: python /vagrant/addtemplate.py rabbit.xml
 
-#     - name: Add zabbix Item to config
-#       template: src=/vagrant/zabbix_agentd.conf dest=/etc/zabbix/zabbix_agentd.conf owner=zabbix group=zabbix
+    - name: Install Zabbix-Client
+      yum: name=zabbix-agent state=present
 
-#     - name: Add zabbix sudo on rabbitmqctl
-#       lineinfile: "dest=/etc/sudoers state=present line='%zabbix ALL=(ALL) NOPASSWD: /usr/sbin/rabbitmqctl'"
+    - service: name=zabbix-agent state=started
+
+    - service: name=zabbix-agent enabled=yes
+
+    - name: Install Zabbix Sender
+      yum: name=zabbix-sender state=present
+
+    - name: Add zabbix Item to config
+      template: src=/vagrant/zabbix_agentd.conf dest=/etc/zabbix/zabbix_agentd.conf owner=zabbix group=zabbix
+
+    - name: Add zabbix sudo on rabbitmqctl
+      lineinfile: "dest=/etc/sudoers state=present line='%zabbix ALL=(ALL) NOPASSWD: /usr/sbin/rabbitmqctl'"
   
-#     - name: Restart zabbix agent
-#       service: name=zabbix-agent state=restarted
+    - name: Restart zabbix agent
+      service: name=zabbix-agent state=restarted
 
-#     - name: Install pika Library
-#       pip: name=pika state=present
+    - name: Install pika Library
+      pip: name=pika state=present
 
-#     - name: Install Rabbitmq Server
-#       yum: name=rabbitmq-server state=present
+    - name: Install Rabbitmq Server
+      yum: name=rabbitmq-server state=present
 
-#     - service: name=rabbitmq-server state=started
-#     - service: name=rabbitmq-server enabled=yes
+    - service: name=rabbitmq-server state=started
+    - service: name=rabbitmq-server enabled=yes
 
-#     - name: Enable Rabbitmq management plugin
-#       command: /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
+    - name: Enable Rabbitmq management plugin
+      command: /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
 
-#     - service: name=rabbitmq-server state=restarted
+    - service: name=rabbitmq-server state=restarted
 
-#     - name: Add Host To zabbix Server
-#       local_action:
-#         module: zabbix_host
-#         server_url: "http://{{ ip_address }}/zabbix"
-#         login_user: admin
-#         login_password: zabbix
-#         host_name: "{{ dns_name }}"
-#         host_groups:
-#           - Linux Servers
-#         link_templates:
-#           - Template OS Linux
-#           - Rabbitmq Template
-#         status: enabled
-#         state: present
-#         interfaces:
-#           - type: 1
-#             main: 1
-#             useip: 1
-#             ip: "{{ ip_address }}"
-#             dns: "{{ dns_name }}"
-#             port: 10050
+    - name: Add Host To zabbix Server
+      local_action:
+        module: zabbix_host
+        server_url: "http://{{ ip_address }}/zabbix"
+        login_user: admin
+        login_password: zabbix
+        host_name: "{{ dns_name }}"
+        host_groups:
+          - Linux Servers
+        link_templates:
+          - Template OS Linux
+          - Rabbitmq Template
+        status: enabled
+        state: present
+        interfaces:
+          - type: 1
+            main: 1
+            useip: 1
+            ip: "{{ ip_address }}"
+            dns: "{{ dns_name }}"
+            port: 10050
 
 - hosts: all
   become: true
